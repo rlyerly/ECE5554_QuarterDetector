@@ -16,7 +16,7 @@ for i = 1:numel(listing)
     
     % Generate the image filename & load image
     imgFilename = strcat(dbFolder, '/', listing(i).name);
-    img = imread(imgFilename);
+    img = normalizeImg(imread(imgFilename));
     rgbImg = rgb2gray(img);
     
     fprintf('Loading image %s into database\n', imgFilename);
