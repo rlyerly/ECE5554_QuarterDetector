@@ -16,14 +16,18 @@ for i = 1:numel(listing)
     
     % Generate the image filename & load image
     imgFilename = strcat(dbFolder, '/', listing(i).name);
-    img = normalizeImg(imread(imgFilename));
-    rgbImg = rgb2gray(img);
+    img = imread(imgFilename);
+    if ~ismatrix(img)
+        img = rgb2gray(img);
+    end
+    img = imsharpen(img, 'Threshold', 0.25, 'Amount', 2, 'Radius', 2);
+    img = normalizeImg(img);
     
     fprintf('Loading image %s into database\n', imgFilename);
     
     % Detect features from the image
     points = detector.detectFeatures(img);
-    [features, valid_points] = extractFeatures(rgbImg, points);
+    [features, valid_points] = extractFeatures(img, points);
     
     % Instantiate the quarter object & add to database
     curQuarter = Quarter(stateName, img, features, valid_points);

@@ -19,7 +19,6 @@ classdef Quarter
     methods
         function obj = Quarter(state, img, features, points)
             assert(ischar(state), 'Invalid state');
-            assert(isinteger(img), 'Invalid image');
             obj.state = state;
             obj.img = img;
             obj.features = features;
