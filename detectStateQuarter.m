@@ -1,4 +1,4 @@
-function state = detectStateQuarter(fn, db, detector)
+function [state, in, d] = detectStateQuarter(fn, db, detector)
 %DETECTSTATEQUARTER Detect & report the state of a quarter
 
 % Get features from the current image
@@ -33,6 +33,8 @@ for i = 1:numel(keys)
         avgDistance = mean(abs(distances));
         if avgDistance < minDistance
             minDistance = avgDistance;
+            in = indexPairs;
+            d = distaces;
             state = keys{i};
         end
         
