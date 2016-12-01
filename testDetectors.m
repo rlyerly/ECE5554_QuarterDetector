@@ -1,6 +1,8 @@
 testFolder = 'QuarterImages';
 listing = dir(testFolder);
 
+accuracies = zeros(6,1);
+
 for i = 1:6
     switch i
         case 1
@@ -26,7 +28,7 @@ for i = 1:6
     end
     
     db = buildDatabase(D);
-    
+    correct = 0;
     for j = 1:numel(listing)
         if strcmp(listing(j).name, '.') || strcmp(listing(j).name, '..')
             continue;
@@ -35,5 +37,15 @@ for i = 1:6
         imgName = strcat(testFolder, '/', listing(j).name);
         state = detectStateQuarter(imgName, db, D);
         fprintf('  -> %s was predicted as %s\n', imgName, state);
+        
+        name = imgName(15:end-5);
+        state = lower(state);
+        state(state == ' ' ) = '';
+        if (strcmp(name, state))
+           correct = correct + 1; 
+        end    
     end
-end
+    
+    accuracies(i) = correct/530;
+    
+    end
