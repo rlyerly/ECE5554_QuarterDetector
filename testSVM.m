@@ -22,7 +22,7 @@ else
         'nebraska', 'nevada', 'newhampshire', 'newjersey', 'newmexico', ...
         'newyork', 'normalback', 'normalfront', 'northcarolina', ...
         'northdakota', 'ohio', 'oklahoma', 'oregon', 'pennsylvania', ...
-        'rhodeisland', 'southcarolina', 'southdakota', 'tennessee', ...
+        'rhodeisland', 'southcarolina', 'southdakota', 'statefront', 'tennessee', ...
         'texas', 'utah', 'vermont', 'virginia', 'washington', ...
         'westvirginia', 'wisconsin', 'wyoming'};
     classes = {};
@@ -45,9 +45,9 @@ else
         % Parse the state's name
         suffixIdx = strfind(listing(i).name, '.');
         state = listing(i).name(1:suffixIdx(end) - 2);
-        if strcmp(state, 'head') state = 'normalfront'; end
-        if strcmp(state, 'ordinaryhead') state = 'normalfront'; end
-        if strcmp(state, 'ordinarytail') state = 'normalback'; end
+        if strcmp(lower(state), 'head') state = 'statefront'; end
+        if strcmp(lower(state), 'ordinaryhead') state = 'normalfront'; end
+        if strcmp(lower(state), 'ordinarytail') state = 'normalback'; end
         class = stateClasses(lower(state));
     
         % Generate the image filename & load image
@@ -96,6 +96,7 @@ for i = 1:numel(listing)
     % Generate the image filename & load image
     imgFile = strcat(testing, '/', listing(i).name);
     img = normalizeImg(imread(imgFile));
+    
 
     % Generate HOG features & predict state using classifier
     features = extractHOGFeatures(img, 'CellSize', HOGCellSize);
