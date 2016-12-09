@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en"><head>  
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="utf-8">
+  <title>Computer Vision Class Project
+  | ECE, Virginia Tech | Fall 2015: ECE 5554/4984</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+<!-- Le styles -->  
+  <link href="css/bootstrap.css" rel="stylesheet">
+<style>
+body {
+padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+}
+.vis {
+color: #3366CC;
+}
+.data {
+color: #FF9900;
+}
+</style>
+  
+<link href="css/bootstrap-responsive.min.css" rel="stylesheet">
+
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements --><!--[if lt IE 9]>
+<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+</head>
+
+<body>
+<div class="container">
+<div class="page-header">
+
+<!-- Title and Name --> 
+<h1>State Quarter Classification</h1> 
+<span style="font-size: 20px; line-height: 1.5em;"><strong>Rob Lyerly, Walker Sensabaugh, Lauren Wong</strong></span><br>
+<span style="font-size: 18px; line-height: 1.5em;">Fall 2016 ECE 5554/4554 Computer Vision: Final Project</span><br>
+<span style="font-size: 18px; line-height: 1.5em;">Virginia Tech</span>
+<hr>
+
+<!-- Goal -->
+<h3>Abstract</h3>
+
+Our goal was to use MATLAB's functionality to build a program that could identify the state off of the back of a US state quarter given webcam streamed input.  
+
+<br><br>
+<!-- need a figure here -->
+<div style="text-align: center;">
+<img style="height: 200px;" alt="" src="mainfig.png">
+</div>
+
+<br><br>
+<!-- Introduction -->
+<h3>Introduction</h3>
+We were interested in the identification and classification of rare coins. To narrow the scope of the project and make it more accessible, we focussed on the identification and classification of state quarters. We took many approaches to this problem, as this turned out to be a much more difficult problem than we anticipated due to the shape and smoothness of the quarter, the reflective surface of the quarter, and the difference in wear of different quarters. We describe our different approaches below. 
+<br><br>
+
+Previous approaches to coin identification mainly focussed on the use of machine learning. One popular approach is variations on a rotation invariant neural network that takes in the values of the image, made invariant either by some preprocessing step or using a backpropogation algorithm. However, this can be a slow method in a real-time situation due to the need to feed the entire image into the neural net. Fourier Transforms have been used as a filtering method to decrease complexity and speed up this process.
+
+<br><br>
+
+Another relatively successful approach utilizes image matching, matching SIFT descriptors of the images of unknown coins to a database of SIFT descriptors for known coin images. This is most similar to our first approach.
+
+<br><br>
+
+A few other approaches we came accross were gradient based and utilized eigenspaces.
+
+<br><br>
+<h3>Data</h3>
+We created our own database of 106 images, two of each quarter (the back of each state quarter, the front of the state quarter, front and back of the standard quarter), in two different lighting situations taken on a black background. We also sourced ten images of each quarter from the internet (a total of 530 images).  
+
+<br><br>
+<!-- Approach -->
+<h3>Approach</h3>
+<h4>Approach #1</h4>
+Our initial approach was to extract sets of features from each of the images in our database, store these, and then extract features from each of the quarters in our testing set and use the nearest neighbor algorithm to determine a match between each quarter in our test set and the quarters in our database. More specifically, our code perfomed the following steps:
+<ul>
+  <li>Build a database of features for each of image in our handmade database. We tested 6 different kinds of features (BRISK, FAST, Harris, MinEigen, MSER, and SURF) to determine the most effective for use on our images. Features were extracted using MATLAB's built in functions.</li>
+  <li>For each image in our internet sourced set, we extract features (using MATLAB's built in functions), and determine the nearest neighbor in the database using MATLAB's built in matchFeatures() function. </li>
+  <li>Display match and determine accuracy.</li>
+</ul>
+This yielded very poor results, as shown below. The following techniques were tested to try to improve our results:
+<ul>
+  <li>Converting the images from the RGB colorspace to grayscale and normalizing the color scale before extracting features. This improved our results minimally.</li>
+  <li>Binarizing the images before extracting features. This did not improve our results.</li>
+  <li>Applying a sharpening filter to the images before extracting features. This also improved our results minimally.</li>
+  <li>Masking out the background and edge of the quarter so as to only extract features from the image on the quarter. This did not improve our results.</li>
+  <li>Building a spatial pyramid model. This did not improve our results.</li>
+</ul>
+<h4>Approach #2</h4>
+Our second approach yielded much better results. First, HOG features were extracted from the images we sourced from the internet. To do this, we made use of MATLAB's built in extractHOGFeatures() function. All grayscale images were resized to 800x800 and a HOG cell size of 16x16 was used to give the same number of features for each image. We then trained an SVM classifier on these features using MATLAB's built in fitcecoc() function. The classifier was then tested on HOG features extracted from the database we created. <br><br>
+Additionally, we found that masking out the background greatly improved our results. This was done by detecting the edges of the quarter, finding the min and max rows and columns of the edges, and cropping the image at those rows and columns. The image was then resized back to 800x800 to maintain the number of HOG features for each image.
+
+
+<br>
+<!-- Results -->
+<h3>Experiments and Results</h3>
+<h4>Experiment #1 - Feature Extraction and Nearest Neighbor Classification </h4>
+6 different features were tested (top row BRISK, FAST, and Harris; bottom row Minimum Eigenvalue, MSER, and SURF): 
+<div style="text-align: center;">
+<img style="height: 500px;" alt="" src="features.png">
+</div>
+Our initial results (presented at the poster presentation):
+<div style="text-align: center;">
+<img style="height: 80px;" alt="" src="initial_results.png">
+</div><br>
+Accuracy was calculated by the number of quarters the algorithm accurately classified divided by the total number of images tested (in this case 530). As a point of reference, if the classifier were to guess randomly, it would get 0.0188 accurate. 
+<br><br>
+Soon after the presentation, we discovered an error in our code that had hindered the performance of our algorithm and had skewed the results. The matchFeatures() function in MATLAB returns a set of matched points and a set of distances for those matches. We had been selecting our classification by the average distance when we should have been selecting our classification by the number of matched points. Fixing this small error gave us the results below. <br><br>
+Corrected results:
+<div style="text-align: center;">
+<img style="height: 80px;" alt="" src="corrected_results.png">
+</div><br>
+Though our accuracy was still very low, the corrected finding that the SURF detector was most effective was what we were expecting, as we know SURF to be the most robust to many kinds of image transformations. <br><br>
+Because the coin is a flat and shiny reflective surface, it is highly responsive to changes in the lighting intensity and position. Additionally, many quarters from the same state have different wear and imperfections. This lent itself to the detectors finding very different features for the same quarter under different conditions. We found this to be the biggest challenge to classifying quarters using this method.
+<div style="text-align: center;">
+<img style="height: 250px;" alt="" src="detector_diff.png">
+</div><br>
+<h4>Experiment #2 - HOG Feature Extraction and SVM Classification</h4>
+Again, accuracy was calculated by the number of quarters accurately classified divided by the number of quarters tested (in this case 53). <br><br>
+Accuracy with background - 0.2641 <br><br>
+Accuracy without background - 0.3207 <br><br>
+<!-- Need more results and explanation here -->
+
+<h3>Code</h3>
+Follow this link to see the code.
+
+<br><br>
+<h3>References</h3>
+Fukumi, Minoru, et al. "Rotation-invariant neural pattern recognition system with application to coin recognition." IEEE Transactions on neural networks 3.2 (1992): 272-279. 
+<br><br>
+Zambanini, Sebastian, and Martin Kampel. "Automatic coin classification by image matching." Proceedings of the 12th International conference on Virtual Reality, Archaeology and Cultural Heritage. Eurographics Association, 2011.
+
+
+
+  <hr>
+  <footer> 
+  <p>© Rob Lyerly, Walker Sensabaugh, Lauren Wong</p>
+  </footer>
+</div>
+</div>
+
+<br><br>
+
+</body></html>
