@@ -119,10 +119,25 @@ Because the coin is a flat and shiny reflective surface, it is highly responsive
 <img style="height: 250px;" alt="" src="detector_diff.png">
 </div><br>
 <h4>Experiment #2 - HOG Feature Extraction and SVM Classification</h4>
+
+First, an SVM was trained on 531 images - 10 images for each state, plus 10 for a non-state quarter back and 21 for the front of all state quarters.  The multi-class SVM was then used to classify state quarter images.  For example, the Arizona test image and the extracted HOG features are shown below:
+
+<div style="text-align: center;">
+<img style="height: 400px;" alt="arizona" src="../GoodLight/Arizona.jpg">
+<img style="height: 400px;" alt="arizona_hog" src="arizona_hog.png">
+</div><br>
+
 Again, accuracy was calculated by the number of quarters accurately classified divided by the number of quarters tested (in this case 53). <br><br>
 Accuracy with background - 0.2641 <br><br>
 Accuracy without background - 0.3207 <br><br>
-<!-- Need more results and explanation here -->
+
+The SVM classifier has a much better success rate than the feature matching classifier, but still struggles to identify quarters.  The classifier tends to predict Texas (34% of all predictions) and New York (15% of all predictions) when the SVM cannot pick out image shapes from the HOG features on the quarters.  More training data would help alleviate this problem.
+
+<h3>Conclusion and Future Work</h3>
+
+The results from the approaches described above indicate that although using traditional image features can provide some a minimal level of detecting state quarters, there is much room for improvement.  State quarters have very fine spatial features, meaning very high resolution images with fine-grained features are required to accurately detect the state.  Even with a fairly large corpus of training examples, an SVM classifier using HOG features was only able to get up to a 32% accuracy.  More quarter examples would have helped improve the accuracy.<br><br>
+
+Future work would involve using state-of-the-art machine learning methods such as convolutional neural networks to automatically train and detect state quarters.  A CNN would require a substantially larger corpus, although extra training samples could be generated from the current corpus (e.g., by rotating images, scaling, etc.).
 
 <h3>Code</h3>
 Follow this link to see the code.
